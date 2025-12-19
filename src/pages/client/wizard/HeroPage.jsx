@@ -65,13 +65,13 @@ export default function HeroPage() {
                                 <Button
                                     size="lg"
                                     className="w-full sm:w-auto shadow-lg shadow-primary/25"
-                                    onClick={() => navigate('/diagnosis')}
+                                    onClick={() => navigate('/wizard/analysis')}
                                 >
-                                    무료 진단 시작하기
+                                    무료 진단
                                     <ArrowRight className="w-5 h-5 ml-1" />
                                 </Button>
                                 <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-                                    서비스 소개 영상
+                                    서비스 소개
                                 </Button>
                             </div>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HeroPage from './pages/client/wizard/HeroPage';
+import InteractiveAnalysisPage from './pages/client/wizard/InteractiveAnalysisPage';
 import DiagnosisPage from './pages/client/diagnosis/DiagnosisPage';
 import BookingPage from './pages/client/booking/BookingPage';
 import ProposalPage from './pages/client/proposal/ProposalPage';
@@ -19,6 +20,7 @@ function App() {
         {/* Client Portal Routes */}
         <Route element={<LayoutClient />}>
           <Route path="/wizard/problem" element={<HeroPage />} />
+          <Route path="/wizard/analysis" element={<InteractiveAnalysisPage />} />
 
           {/* Future Routes */}
           <Route path="/diagnosis" element={<DiagnosisPage />} />
