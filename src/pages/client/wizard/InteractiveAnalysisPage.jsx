@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnalysisChatInterface } from '../../../components/analysis/AnalysisChatInterface';
 import { LiveAnalysisPanel } from '../../../components/analysis/LiveAnalysisPanel';
 import { Button } from '../../../components/ui/Button';
+import { performFullAnalysis } from '../../../utils/analysisAlgorithm';
 
 export default function InteractiveAnalysisPage() {
     const navigate = useNavigate();
-    const [messageCount, setMessageCount] = useState(0);
+    const [analysis, setAnalysis] = useState(null);
     const [isComplete, setIsComplete] = useState(false);
 
-    const handleMessageSent = (message, count) => {
-        setMessageCount(count);
+    const handleMessagesUpdate = useCallback((messages) => {
+        // Perform analysis on the conversation
+        const result = performFullAnalysis(messages);
+        setAnalysis(result);
 
-        // Mark as complete after 4 messages
-        if (count >= 4) {
+        // Mark as complete when analysis is ready and progress is 100%
+        if (result && result.analysisProgress >= 100 && !isComplete) {
             setTimeout(() => setIsComplete(true), 1500);
         }
-    };
+    }, [isComplete]);
 
     return (
         <div className="min-h-[calc(100vh-64px)] bg-gray-50">
@@ -51,7 +54,7 @@ export default function InteractiveAnalysisPage() {
                 <div className="grid lg:grid-cols-10 h-full">
                     {/* Left: Live Analysis Panel (60%) */}
                     <div className="lg:col-span-6 bg-gradient-to-br from-gray-50 to-blue-50/30 border-r border-gray-100 overflow-hidden">
-                        <LiveAnalysisPanel messageCount={messageCount} />
+                        <LiveAnalysisPanel analysis={analysis} />
                     </div>
 
                     {/* Right: Chat Interface (40%) */}
@@ -62,9 +65,9 @@ export default function InteractiveAnalysisPage() {
                                 <h3 className="font-bold text-gray-900 text-sm">AI 상담</h3>
                                 <p className="text-xs text-gray-500">상황을 자세히 설명해주세요</p>
                             </div>
-                            {messageCount > 0 && (
+                            {analysis && (
                                 <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
-                                    {Math.min(messageCount * 25, 100)}% 완료
+                                    {analysis.analysisProgress}% 완료
                                 </span>
                             )}
                         </div>
@@ -72,7 +75,7 @@ export default function InteractiveAnalysisPage() {
                         {/* Chat Interface */}
                         <div className="flex-1 overflow-hidden">
                             <AnalysisChatInterface
-                                onMessageSent={handleMessageSent}
+                                onMessagesUpdate={handleMessagesUpdate}
                                 compact={true}
                             />
                         </div>
@@ -81,7 +84,7 @@ export default function InteractiveAnalysisPage() {
             </div>
 
             {/* Completion Modal */}
-            {isComplete && (
+            {isComplete && analysis && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -96,17 +99,36 @@ export default function InteractiveAnalysisPage() {
                             <Shield className="w-8 h-8 text-green-600" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">분석 완료!</h2>
-                        <p className="text-gray-600 mb-6">
-                            충분한 정보가 수집되었습니다.<br />
-                            최적의 전문가를 매칭해드릴게요.
+                        <p className="text-gray-600 mb-4">
+                            <span className="font-bold text-primary">{analysis.primaryCase.name}</span> 사건으로 분류되었습니다.
                         </p>
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left">
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <p className="text-gray-500">승소 확률</p>
+                                    <p className="font-bold text-green-600">{analysis.winRate}%</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">예상 비용</p>
+                                    <p className="font-bold text-gray-900">{analysis.estimatedCost.min}~{analysis.estimatedCost.max}만원</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">유사 사례</p>
+                                    <p className="font-bold text-primary">{analysis.similarCases}건</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">대기 전문가</p>
+                                    <p className="font-bold text-secondary">{analysis.experts.length}명</p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="space-y-3">
                             <Button
                                 size="lg"
                                 className="w-full"
                                 onClick={() => navigate('/diagnosis')}
                             >
-                                진단 결과 보기
+                                전문가 매칭 결과 보기
                             </Button>
                             <Button
                                 size="lg"

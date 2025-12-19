@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Send, Mic, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 const INITIAL_MESSAGE = "안녕하세요, 탁월 AI입니다.\n오늘 어떤 법적인 고민 때문에 찾아오셨나요?\n\n편하게 말씀해 주시면, 제가 상황을 분석하고\n최적의 전문가를 찾아드릴게요.";
 
-const AI_RESPONSES = [
+const AI_FOLLOW_UPS = [
     "네, 이해했습니다. 조금 더 구체적으로 여쭤볼게요.\n혹시 해당 상황이 언제부터 시작되었나요?",
     "알겠습니다. 그렇다면 관련 증거(메시지, 녹음 등)가 있으신가요?",
     "충분히 파악이 되었습니다.\n마지막으로, 원하시는 해결 방향이 있으신가요?\n(예: 합의, 소송, 진정 등)",
     "감사합니다. 모든 정보가 수집되었습니다.\n지금부터 최적의 전문가를 매칭해 드리겠습니다."
 ];
 
-export function AnalysisChatInterface({ onMessageSent, compact = false }) {
+export function AnalysisChatInterface({ onMessagesUpdate, compact = false }) {
     const [messages, setMessages] = useState([
         { id: 1, type: 'ai', text: INITIAL_MESSAGE, timestamp: new Date() }
     ]);
@@ -28,6 +28,13 @@ export function AnalysisChatInterface({ onMessageSent, compact = false }) {
         scrollToBottom();
     }, [messages]);
 
+    // Notify parent whenever messages change
+    useEffect(() => {
+        if (onMessagesUpdate) {
+            onMessagesUpdate(messages);
+        }
+    }, [messages, onMessagesUpdate]);
+
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
@@ -35,20 +42,16 @@ export function AnalysisChatInterface({ onMessageSent, compact = false }) {
 
         // User Message
         const userMsg = { id: Date.now(), type: 'user', text: userMessage, timestamp: new Date() };
-        setMessages(prev => [...prev, userMsg]);
+        const newMessages = [...messages, userMsg];
+        setMessages(newMessages);
         setInputValue("");
-
-        // Notify parent about the new message
-        if (onMessageSent) {
-            onMessageSent(userMessage, messages.filter(m => m.type === 'user').length + 1);
-        }
 
         // Simulate AI Response
         setTimeout(() => {
             const aiMsg = {
                 id: Date.now() + 1,
                 type: 'ai',
-                text: AI_RESPONSES[responseIndex % AI_RESPONSES.length],
+                text: AI_FOLLOW_UPS[responseIndex % AI_FOLLOW_UPS.length],
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, aiMsg]);
@@ -62,6 +65,8 @@ export function AnalysisChatInterface({ onMessageSent, compact = false }) {
             handleSend();
         }
     };
+
+    const userMessageCount = messages.filter(m => m.type === 'user').length;
 
     return (
         <div className={`flex flex-col ${compact ? 'h-full' : 'h-[calc(100vh-64px)]'} bg-gray-50`}>
@@ -91,19 +96,19 @@ export function AnalysisChatInterface({ onMessageSent, compact = false }) {
             </div>
 
             {/* Progress Indicator */}
-            {messages.filter(m => m.type === 'user').length > 0 && (
+            {userMessageCount > 0 && (
                 <div className="px-4 pb-2">
                     <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <motion.div
                                 className="h-full bg-primary rounded-full"
                                 initial={{ width: 0 }}
-                                animate={{ width: `${Math.min(messages.filter(m => m.type === 'user').length * 25, 100)}%` }}
+                                animate={{ width: `${Math.min(userMessageCount * 25, 100)}%` }}
                                 transition={{ duration: 0.5 }}
                             />
                         </div>
                         <span className="text-xs text-gray-500 font-medium">
-                            {Math.min(messages.filter(m => m.type === 'user').length * 25, 100)}%
+                            {Math.min(userMessageCount * 25, 100)}%
                         </span>
                     </div>
                 </div>
