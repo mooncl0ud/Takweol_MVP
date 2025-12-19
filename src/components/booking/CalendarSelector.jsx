@@ -21,7 +21,7 @@ const TIME_SLOTS = [
 
 export function CalendarSelector() {
     const [selectedDate, setSelectedDate] = useState(0);
-    const [selectedTime, setSelectedTime] = useState < string | null > (null);
+    const [selectedTime, setSelectedTime] = useState(null);
 
     return (
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
