@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Mic, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { performFullAnalysis } from '../../utils/analysisAlgorithm';
+import { useAnalysis } from '../../contexts/AnalysisContext';
 
 const INITIAL_MESSAGE = "안녕하세요, 탁월 AI입니다.\n오늘 어떤 법적인 고민 때문에 찾아오셨나요?\n\n편하게 말씀해 주시면, 제가 상황을 분석하고\n최적의 전문가를 찾아드릴게요.";
 
@@ -12,7 +14,8 @@ const AI_FOLLOW_UPS = [
     "감사합니다. 모든 정보가 수집되었습니다.\n지금부터 최적의 전문가를 매칭해 드리겠습니다."
 ];
 
-export function AnalysisChatInterface({ onMessagesUpdate, compact = false }) {
+export function AnalysisChatInterface({ onMessagesUpdate, onAnalysisUpdate, compact = false }) {
+    const { updateAnalysis } = useAnalysis();
     const [messages, setMessages] = useState([
         { id: 1, type: 'ai', text: INITIAL_MESSAGE, timestamp: new Date() }
     ]);
@@ -35,6 +38,23 @@ export function AnalysisChatInterface({ onMessagesUpdate, compact = false }) {
         }
     }, [messages, onMessagesUpdate]);
 
+    // Perform analysis on messages and save to context
+    const performAnalysisAndSave = (msgs) => {
+        const result = performFullAnalysis(msgs);
+
+        if (result) {
+            console.log('AnalysisChatInterface - Saving to context:', result.primaryCase?.name);
+            updateAnalysis(result);
+
+            // Also notify parent if callback provided
+            if (onAnalysisUpdate) {
+                onAnalysisUpdate(result);
+            }
+        }
+
+        return result;
+    };
+
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
@@ -45,6 +65,9 @@ export function AnalysisChatInterface({ onMessagesUpdate, compact = false }) {
         const newMessages = [...messages, userMsg];
         setMessages(newMessages);
         setInputValue("");
+
+        // Perform analysis and save to context
+        performAnalysisAndSave(newMessages);
 
         // Simulate AI Response
         setTimeout(() => {

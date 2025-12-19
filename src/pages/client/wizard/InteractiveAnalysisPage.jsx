@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,22 +6,37 @@ import { AnalysisChatInterface } from '../../../components/analysis/AnalysisChat
 import { LiveAnalysisPanel } from '../../../components/analysis/LiveAnalysisPanel';
 import { Button } from '../../../components/ui/Button';
 import { performFullAnalysis } from '../../../utils/analysisAlgorithm';
+import { useAnalysis } from '../../../contexts/AnalysisContext';
 
 export default function InteractiveAnalysisPage() {
     const navigate = useNavigate();
-    const [analysis, setAnalysis] = useState(null);
+    const { analysis: contextAnalysis, updateAnalysis } = useAnalysis();
+    const [analysis, setAnalysis] = useState(contextAnalysis);
     const [isComplete, setIsComplete] = useState(false);
+
+    // Sync local state with context
+    useEffect(() => {
+        if (contextAnalysis) {
+            setAnalysis(contextAnalysis);
+        }
+    }, [contextAnalysis]);
 
     const handleMessagesUpdate = useCallback((messages) => {
         // Perform analysis on the conversation
         const result = performFullAnalysis(messages);
         setAnalysis(result);
 
+        // Save to context for DiagnosisPage
+        if (result) {
+            console.log('InteractiveAnalysisPage - Saving to context:', result.primaryCase?.name);
+            updateAnalysis(result);
+        }
+
         // Mark as complete when analysis is ready and progress is 100%
         if (result && result.analysisProgress >= 100 && !isComplete) {
             setTimeout(() => setIsComplete(true), 1500);
         }
-    }, [isComplete]);
+    }, [isComplete, updateAnalysis]);
 
     return (
         <div className="min-h-[calc(100vh-64px)] bg-gray-50">
