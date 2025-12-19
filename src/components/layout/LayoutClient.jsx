@@ -1,8 +1,11 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
+import { Briefcase } from 'lucide-react';
 
 export function LayoutClient() {
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
@@ -17,7 +20,15 @@ export function LayoutClient() {
                     {/* Nav / Actions */}
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="sm">로그인</Button>
-                        <Button variant="secondary" size="sm" className="hidden md:flex">전문가 등록</Button>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="hidden md:flex items-center gap-2"
+                            onClick={() => navigate('/expert/inbox')}
+                        >
+                            <Briefcase className="w-4 h-4" />
+                            전문가 포털
+                        </Button>
                     </div>
                 </div>
             </header>

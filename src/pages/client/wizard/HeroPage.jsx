@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, Shield, Users, Briefcase } from 'lucide-react';
+import { ArrowRight, Star, Shield, Users } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { InsightMirror } from '../../../components/hero/InsightMirror';
 import { ChatInterface } from '../../../components/mobile/ChatInterface';
@@ -10,19 +10,7 @@ export default function HeroPage() {
     const navigate = useNavigate();
 
     return (
-        <div className="w-full relative">
-            {/* Expert Portal Button - Top Right */}
-            <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                onClick={() => navigate('/expert/leads')}
-                className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all duration-200 group"
-            >
-                <Briefcase className="w-4 h-4 text-gray-600 group-hover:text-primary transition-colors" />
-                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">전문가 포털</span>
-            </motion.button>
-
+        <div className="w-full">
             {/* Mobile: Chat Interface */}
             <div className="lg:hidden">
                 <ChatInterface />
