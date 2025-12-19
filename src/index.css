@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+/* Custom Design Tokens for Takweol (Toss Style) */
+@theme {
+  /* Colors - Bright & Clean Palette */
+  --color-primary-50: #e8f3ff;
+  --color-primary-100: #c9e2ff;
+  --color-primary-200: #9bc8ff;
+  --color-primary-300: #64a2ff;
+  --color-primary-400: #3b87f6;
+  /* Soft Blue */
+  --color-primary-500: #3182f6;
+  /* Toss Blue - Main Brand Color */
+  --color-primary-600: #1b64da;
+  --color-primary-700: #164eb3;
+  --color-primary-800: #16418f;
+  --color-primary-900: #163a73;
+  --color-primary-950: #102646;
+
+  /* Neutrals */
+  --color-background-base: #f2f4f6;
+  /* Toss Light Grey Background */
+  --color-background-white: #ffffff;
+  --color-text-primary: #191f28;
+  /* Almost Black */
+  --color-text-secondary: #4e5968;
+  /* Dark Grey */
+  --color-text-tertiary: #8b95a1;
+  /* Light Grey */
+  --color-border-light: #e5e8eb;
+
+  /* Accent Colors */
+  --color-accent-coral: #FF6B35;
+  --color-accent-teal: #4ECDC4;
+
+  /* Category Colors (Pastel & Soft) */
+  --color-labor: #F97316;
+  --color-civil: #3B82F6;
+  --color-criminal: #EF4444;
+  --color-tax: #10B981;
+  --color-psychology: #8B5CF6;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Shadows - Soft & Modern */
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Border Radius */
+  --radius-soft: 16px;
+  --radius-medium: 20px;
+  --radius-large: 26px;
+  --radius-full: 9999px;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background-base);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utilities */
+.bg-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.shadow-toss {
+  box-shadow: var(--shadow-soft);
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:active {
+  transform: scale(0.98);
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d6db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b0b8c1;
+}
+
+/* Category Badges Specific */
+.badge-labor {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+}
+
+.badge-civil {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.badge-criminal {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fee2e2;
+}
+
+.badge-tax {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #d1fae5;
+}
+
+.badge-psychology {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ede9fe;
+}
