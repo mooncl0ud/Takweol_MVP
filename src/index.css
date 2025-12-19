@@ -1,182 +1,20 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Custom Design Tokens for Takweol (Toss Style) */
-@theme {
-  /* Colors - Takweol Trust & Safety Palette */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  /* Trust Blue (Main) */
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  /* Safety Amber - Accent */
-  --color-accent-amber: #F59E0B;
-  --color-accent-50: #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-500: #f59e0b;
-
-  /* Neutrals */
-  --color-background-base: #F9FAFB;
-  /* Cool Light Gray */
-  --color-background-white: #ffffff;
-  --color-text-primary: #111827;
-  /* Gray 900 */
-  --color-text-secondary: #4B5563;
-  /* Gray 600 */
-  --color-text-tertiary: #9CA3AF;
-  /* Gray 400 */
-
-  --color-border-light: #e5e7eb;
-
-  /* Category Colors (Pastel & Soft) */
-  --color-labor: #F97316;
-  --color-civil: #3B82F6;
-  --color-criminal: #EF4444;
-  --color-tax: #10B981;
-  --color-psychology: #8B5CF6;
-
-  /* Typography */
-  --font-sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  /* Shadows - Soft & deep */
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.08);
-
-  /* Border Radius */
-  --radius-soft: 16px;
-  --radius-medium: 20px;
-  --radius-large: 26px;
-  --radius-full: 9999px;
-}
-
-/* Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-sans);
-  background-color: var(--color-background-base);
-  color: var(--color-text-primary);
-  min-height: 100vh;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Utilities */
-.bg-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.shadow-toss {
-  box-shadow: var(--shadow-soft);
-}
-
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-hover:active {
-  transform: scale(0.98);
-}
-
-/* Animation Keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@layer base {
+  body {
+    @apply bg-background text-text-main font-sans antialiased selection:bg-primary-light selection:text-primary;
   }
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Custom Scrollbar for Insight Mirror */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
 }
-
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d6db;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #b0b8c1;
-}
-
-/* Category Badges Specific */
-.badge-labor {
-  background-color: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #ffedd5;
-}
-
-.badge-civil {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #dbeafe;
-}
-
-.badge-criminal {
-  background-color: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fee2e2;
-}
-
-.badge-tax {
-  background-color: #ecfdf5;
-  color: #047857;
-  border: 1px solid #d1fae5;
-}
-
-.badge-psychology {
-  background-color: #f5f3ff;
-  color: #6d28d9;
-  border: 1px solid #ede9fe;
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

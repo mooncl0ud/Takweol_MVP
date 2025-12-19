@@ -1,51 +1,43 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 const variants = {
-    primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-md active:bg-primary-800',
-    secondary: 'bg-primary-50 hover:bg-primary-100 text-primary-700 active:bg-primary-200',
-    outline: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-600 active:bg-gray-200',
-    accent: 'bg-accent-amber hover:bg-accent-500 text-white shadow-lg active:scale-[0.98]', // Safety Amber
+    primary: 'bg-primary text-white shadow-soft-deep hover:bg-primary-hover border border-transparent',
+    secondary: 'bg-white text-text-sub border border-gray-200 hover:border-primary/30 hover:text-primary shadow-sm',
+    accent: 'bg-secondary text-white shadow-soft-deep hover:bg-secondary-hover border border-transparent',
+    ghost: 'bg-transparent text-text-sub hover:bg-gray-100 border-transparent',
 };
 
 const sizes = {
     sm: 'px-3 py-1.5 text-sm',
-    md: 'px-5 py-3 text-base',
-    lg: 'px-6 py-4 text-lg',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-8 py-3.5 text-lg font-semibold',
 };
 
-export default function Button({
+export function Button({
     children,
     variant = 'primary',
     size = 'md',
-    className = '',
-    disabled = false,
-    loading = false,
-    icon,
+    className,
+    icon: Icon,
     ...props
 }) {
     return (
-        <button
-            className={`
-        inline-flex items-center justify-center gap-2
-        font-bold rounded-2xl
-        transition-all duration-200 ease-out
-        active:scale-[0.96]
-        disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:active:scale-100
-        ${variants[variant]}
-        ${sizes[size]}
-        ${className}
-      `}
-            disabled={disabled || loading}
+        <motion.button
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            className={twMerge(
+                'inline-flex items-center justify-center gap-2 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed',
+                variants[variant],
+                sizes[size],
+                className
+            )}
             {...props}
         >
-            {loading ? (
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-            ) : icon}
+            {Icon && <Icon className="w-5 h-5" />}
             {children}
-        </button>
+        </motion.button>
     );
 }
