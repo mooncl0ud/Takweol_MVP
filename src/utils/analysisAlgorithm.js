@@ -266,7 +266,9 @@ export function performFullAnalysis(conversationHistory) {
             law: primaryCase.law,
             category: primaryCase.category,
             confidence: primaryCase.confidence,
-            matchedKeywords: primaryCase.matchedKeywords
+            matchedKeywords: primaryCase.matchedKeywords,
+            description: primaryCase.description,
+            keyFindings: primaryCase.keyFindings
         },
         secondaryCases: detectedCases.slice(1, 3).map(c => ({
             id: c.id,
