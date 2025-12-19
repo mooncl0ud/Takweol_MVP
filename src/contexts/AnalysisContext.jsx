@@ -6,6 +6,7 @@ export function AnalysisProvider({ children }) {
     const [analysis, setAnalysis] = useState(null);
 
     const updateAnalysis = useCallback((newAnalysis) => {
+        console.log('AnalysisContext - Setting new analysis:', newAnalysis);
         setAnalysis(newAnalysis);
     }, []);
 

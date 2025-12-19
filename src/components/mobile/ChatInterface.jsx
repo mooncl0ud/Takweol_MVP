@@ -174,6 +174,7 @@ export function ChatInterface() {
 
         // Save to context for DiagnosisPage
         if (result) {
+            console.log('ChatInterface - Updating context with analysis:', result.primaryCase?.name);
             updateAnalysis(result);
         }
 
