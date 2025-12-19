@@ -114,7 +114,7 @@ export default function ProposalBuilderPage() {
                 <div className="space-y-4">
                     <div className="bg-gray-100 rounded-xl p-6 text-center">
                         <h4 className="font-bold text-gray-500 mb-2">모바일 미리보기</h4>
-                        <div className="w-[240px] h-[480px] bg-white rounded-3xl mx-auto border-4 border-gray-200 shadow-inner flex items-center justify-center text-gray-300 text-xs">
+                        <div className="w-[250px] h-[480px] bg-white rounded-3xl mx-auto border-4 border-gray-200 shadow-inner flex items-center justify-center text-gray-300 text-xs">
                             Screen Preview
                         </div>
                     </div>

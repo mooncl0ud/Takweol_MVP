@@ -5,7 +5,7 @@ import { Button } from '../../../components/ui/Button';
 
 const MOCK_LEADS = [
     {
-        id: "L-2401",
+        id: "L-2501",
         name: "홍길동",
         issue: "직장 내 괴롭힘 및 부당 인사발령",
         summary: "팀장의 지속적인 폭언과 야근 강요 녹취록 확보됨. 인사기록상 불이익 처분 확인.",
@@ -15,7 +15,7 @@ const MOCK_LEADS = [
         tags: ["증거확보", "형사소송가능"]
     },
     {
-        id: "L-2398",
+        id: "L-2598",
         name: "이민정",
         issue: "프리랜서 임금 체불 건",
         summary: "계약서 미작성 상태이나 업무 지시 이메일 다수 존재. 근로자성 인정 여부가 쟁점.",

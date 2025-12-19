@@ -9,41 +9,41 @@ import { Button } from '../../../components/ui/Button';
 
 const MOCK_CASES = [
     {
-        id: "C-2401",
+        id: "C-2501",
         clientName: "홍길동",
         title: "직장 내 괴롭힘 및 부당 인사발령",
         status: "진행중",
         stage: "증거수집",
         stageProgress: 40,
-        startDate: "2024.01.15",
+        startDate: "2025.01.15",
         nextAction: "녹취록 증거 정리",
-        nextDeadline: "2024.01.25",
+        nextDeadline: "2025.01.25",
         totalFee: 5000000,
         paidFee: 2000000,
         messages: 3
     },
     {
-        id: "C-2398",
+        id: "C-2598",
         clientName: "이민정",
         title: "프리랜서 임금 체불 건",
         status: "진행중",
         stage: "소장 작성",
         stageProgress: 65,
-        startDate: "2024.01.10",
+        startDate: "2025.01.10",
         nextAction: "소장 초안 검토",
-        nextDeadline: "2024.01.22",
+        nextDeadline: "2025.01.22",
         totalFee: 3000000,
         paidFee: 1500000,
         messages: 0
     },
     {
-        id: "C-2385",
+        id: "C-2585",
         clientName: "박서준",
         title: "부동산 계약 분쟁",
         status: "완료",
         stage: "종결",
         stageProgress: 100,
-        startDate: "2023.11.05",
+        startDate: "2025.11.05",
         nextAction: "-",
         nextDeadline: "-",
         totalFee: 8000000,
@@ -113,8 +113,8 @@ function CaseCard({ caseData }) {
                         <div
                             key={stage}
                             className={`h-1.5 flex-1 rounded-full transition-colors ${i <= currentStageIndex
-                                    ? 'bg-primary'
-                                    : 'bg-gray-200'
+                                ? 'bg-primary'
+                                : 'bg-gray-200'
                                 }`}
                         />
                     ))}
@@ -204,8 +204,8 @@ export default function MyCasesPage() {
                 <button
                     onClick={() => setFilter("all")}
                     className={`p-4 rounded-xl border transition-all ${filter === "all"
-                            ? "bg-primary text-white border-primary shadow-lg shadow-primary/25"
-                            : "bg-white border-gray-100 hover:border-primary/30"
+                        ? "bg-primary text-white border-primary shadow-lg shadow-primary/25"
+                        : "bg-white border-gray-100 hover:border-primary/30"
                         }`}
                 >
                     <div className={`text-2xl font-bold ${filter === "all" ? "text-white" : "text-gray-900"}`}>
@@ -218,8 +218,8 @@ export default function MyCasesPage() {
                 <button
                     onClick={() => setFilter("active")}
                     className={`p-4 rounded-xl border transition-all ${filter === "active"
-                            ? "bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/25"
-                            : "bg-white border-gray-100 hover:border-blue-200"
+                        ? "bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/25"
+                        : "bg-white border-gray-100 hover:border-blue-200"
                         }`}
                 >
                     <div className={`text-2xl font-bold flex items-center gap-2 ${filter === "active" ? "text-white" : "text-blue-600"}`}>
@@ -233,8 +233,8 @@ export default function MyCasesPage() {
                 <button
                     onClick={() => setFilter("completed")}
                     className={`p-4 rounded-xl border transition-all ${filter === "completed"
-                            ? "bg-green-500 text-white border-green-500 shadow-lg shadow-green-500/25"
-                            : "bg-white border-gray-100 hover:border-green-200"
+                        ? "bg-green-500 text-white border-green-500 shadow-lg shadow-green-500/25"
+                        : "bg-white border-gray-100 hover:border-green-200"
                         }`}
                 >
                     <div className={`text-2xl font-bold flex items-center gap-2 ${filter === "completed" ? "text-white" : "text-green-600"}`}>

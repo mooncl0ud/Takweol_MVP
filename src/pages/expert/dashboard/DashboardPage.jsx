@@ -83,8 +83,8 @@ function UpcomingEvent({ title, date, time, type }) {
                 <p className="text-sm text-gray-500">{time}</p>
             </div>
             <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${type === "hearing" ? "bg-red-50 text-red-600" :
-                    type === "meeting" ? "bg-blue-50 text-blue-600" :
-                        "bg-gray-100 text-gray-600"
+                type === "meeting" ? "bg-blue-50 text-blue-600" :
+                    "bg-gray-100 text-gray-600"
                 }`}>
                 {type === "hearing" ? "기일" : type === "meeting" ? "상담" : "기타"}
             </span>
