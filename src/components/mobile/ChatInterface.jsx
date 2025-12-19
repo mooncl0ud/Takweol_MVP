@@ -4,6 +4,7 @@ import { Send, Mic, Image as ImageIcon, ArrowRight, Loader2, Shield, TrendingUp,
 import { Button } from '../ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { performFullAnalysis } from '../../utils/analysisAlgorithm';
+import { useAnalysis } from '../../contexts/AnalysisContext';
 
 const INITIAL_MESSAGE = "안녕하세요, 탁월 AI입니다.\n오늘 어떤 법적인 고민 때문에 찾아오셨나요?\n\n편하게 말씀해 주시면, 제가 상황을 분석하고\n최적의 전문가를 찾아드릴게요.";
 
@@ -146,6 +147,7 @@ function AnalysisBottomSheet({ analysis, onClose, onNavigate }) {
 
 export function ChatInterface() {
     const navigate = useNavigate();
+    const { updateAnalysis } = useAnalysis();
     const [messages, setMessages] = useState([
         { id: 1, type: 'ai', text: INITIAL_MESSAGE, timestamp: new Date() }
     ]);
@@ -170,11 +172,16 @@ export function ChatInterface() {
         const result = performFullAnalysis(msgs);
         setAnalysis(result);
 
+        // Save to context for DiagnosisPage
+        if (result) {
+            updateAnalysis(result);
+        }
+
         // Show bottom sheet when analysis is complete (100%)
         if (result && result.analysisProgress >= 100) {
             setTimeout(() => setShowBottomSheet(true), 500);
         }
-    }, []);
+    }, [updateAnalysis]);
 
     const handleSend = () => {
         if (!inputValue.trim()) return;

@@ -11,36 +11,40 @@ import LeadInboxPage from './pages/expert/leads/LeadInboxPage';
 import ProposalBuilderPage from './pages/expert/proposal/ProposalBuilderPage';
 import MyCasesPage from './pages/expert/cases/MyCasesPage';
 import DashboardPage from './pages/expert/dashboard/DashboardPage';
+import { AnalysisProvider } from './contexts/AnalysisContext';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Redirect Root to Problem Wizard */}
-        <Route path="/" element={<Navigate to="/wizard/problem" replace />} />
+    <AnalysisProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Redirect Root to Problem Wizard */}
+          <Route path="/" element={<Navigate to="/wizard/problem" replace />} />
 
-        {/* Client Portal Routes */}
-        <Route element={<LayoutClient />}>
-          <Route path="/wizard/problem" element={<HeroPage />} />
-          <Route path="/wizard/analysis" element={<InteractiveAnalysisPage />} />
+          {/* Client Portal Routes */}
+          <Route element={<LayoutClient />}>
+            <Route path="/wizard/problem" element={<HeroPage />} />
+            <Route path="/wizard/analysis" element={<InteractiveAnalysisPage />} />
 
-          {/* Future Routes */}
-          <Route path="/diagnosis" element={<DiagnosisPage />} />
-          <Route path="/booking" element={<BookingPage />} />
-          <Route path="/proposal" element={<ProposalPage />} />
-        </Route>
+            {/* Future Routes */}
+            <Route path="/diagnosis" element={<DiagnosisPage />} />
+            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/proposal" element={<ProposalPage />} />
+          </Route>
 
-        {/* Expert Portal Routes */}
-        <Route path="/expert" element={<LayoutExpert />}>
-          <Route index element={<Navigate to="/expert/inbox" replace />} />
-          <Route path="inbox" element={<LeadInboxPage />} />
-          <Route path="drafts" element={<ProposalBuilderPage />} />
-          <Route path="cases" element={<MyCasesPage />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          {/* Expert Portal Routes */}
+          <Route path="/expert" element={<LayoutExpert />}>
+            <Route index element={<Navigate to="/expert/inbox" replace />} />
+            <Route path="inbox" element={<LeadInboxPage />} />
+            <Route path="drafts" element={<ProposalBuilderPage />} />
+            <Route path="cases" element={<MyCasesPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AnalysisProvider>
   );
 }
 
 export default App;
+
