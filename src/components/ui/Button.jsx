@@ -1,11 +1,11 @@
 import React from 'react';
 
 const variants = {
-    primary: 'bg-primary-500 hover:bg-primary-600 text-white shadow-md active:bg-primary-700',
-    secondary: 'bg-primary-50 hover:bg-primary-100 text-primary-600 active:bg-primary-200',
+    primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-md active:bg-primary-800',
+    secondary: 'bg-primary-50 hover:bg-primary-100 text-primary-700 active:bg-primary-200',
     outline: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100',
     ghost: 'bg-transparent hover:bg-gray-100 text-gray-600 active:bg-gray-200',
-    accent: 'bg-primary-500 hover:bg-primary-600 text-white shadow-lg active:scale-[0.98]', // Same as primary for consistency in bright theme or make it distinct if needed
+    accent: 'bg-accent-amber hover:bg-accent-500 text-white shadow-lg active:scale-[0.98]', // Safety Amber
 };
 
 const sizes = {

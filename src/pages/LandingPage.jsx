@@ -1,288 +1,263 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-
-// Explicit default imports to avoid barrel file issues
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Lock, Shield, CheckCircle, Star } from 'lucide-react';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import ChatBubble from '../components/ui/ChatBubble';
-import TypingIndicator from '../components/ui/TypingIndicator';
-import Card from '../components/ui/Card';
 
-import { setProblemDescription, setClassification, setSimilarCases } from '../store/consultationSlice';
-import { reviews, categories } from '../data/mockData';
+// Mock Data for Demo Animation
+const TYPING_SEQUENCE = [
+    "상사가 이유 없이 욕설을 하고...",
+    "야근 수당도 제대로 주지 않습니다.",
+    "이런 경우 어떻게 해야 하나요?",
+];
 
-// Mock AI Logic
-const analyzeInput = (text) => {
-    const keywords = {
-        labor: ['상사', '야근', '해고', '임금', '월급', '퇴직', '괴롭힘', '폭언', '직장', '회사', '근로', '노동'],
-        civil: ['계약', '돈', '채권', '소송', '합의', '손해', '배상', '미지급'],
-        criminal: ['고소', '고발', '폭행', '사기', '협박', '명예훼손', '성범죄'],
-        tax: ['세금', '세무', '국세청', '세무조사', '상속세', '증여세', '법인세'],
-        psychology: ['스트레스', '우울', '불안', '번아웃', '힘들어', '지쳐'],
-    };
-
-    let maxScore = 0;
-    let detectedCategory = 'civil';
-
-    for (const [category, words] of Object.entries(keywords)) {
-        const score = words.filter(word => text.includes(word)).length;
-        if (score > maxScore) {
-            maxScore = score;
-            detectedCategory = category;
-        }
-    }
-
-    const summaries = {
-        labor: '직장 내 괴롭힘 또는 노동법 관련 문제로 보입니다.',
-        civil: '계약 이행 및 손해배상 관련 민사 사안으로 판단됩니다.',
-        criminal: '형사적 대응이 필요할 수 있는 중대한 사안입니다.',
-        tax: '세무 조사 대응 및 절세 전략이 필요한 상황입니다.',
-        psychology: '심리적 안정을 위한 전문가 상담이 필요해 보입니다.',
-    };
-
-    return {
-        category: detectedCategory,
-        confidence: Math.min(95, 70 + maxScore * 5),
-        summary: summaries[detectedCategory],
-        comfortMessage: "많이 당황스럽고 힘드셨겠어요. 하지만 혼자가 아닙니다. 전문가와 함께라면 해결할 수 있습니다.",
-    };
-};
+const INSIGHT_CARDS = [
+    { type: 'alert', title: '직장 내 괴롭힘 감지', color: 'red' },
+    { type: 'law', title: '근로기준법 제76조의3', color: 'blue' },
+    { type: 'case', title: '유사 승소 사례 1,240건', color: 'green' },
+];
 
 export default function LandingPage() {
-    const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
-    const [diagnosis, setDiagnosis] = useState(null);
-    const messagesEndRef = useRef(null);
-
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const [typingText, setTypingText] = useState("");
+    const [showInsights, setShowInsights] = useState(0);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
+    // Typing Effect Animation Loop
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isTyping, diagnosis]);
+        let currentIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 100;
 
-    // Initial Greeting
-    useEffect(() => {
-        setIsTyping(true);
-        setTimeout(() => {
-            setIsTyping(false);
-            setMessages([
-                { id: 1, text: "안녕하세요. 오늘 마음 무거운 일이 있으셨나요?", isUser: false },
-                { id: 2, text: "무슨 일이 있었는지 편하게 이야기해주세요. 제가 들어드릴게요.", isUser: false },
-            ]);
-        }, 1000);
+        const type = () => {
+            const currentString = TYPING_SEQUENCE[currentIndex];
+
+            if (isDeleting) {
+                setTypingText(currentString.substring(0, charIndex - 1));
+                charIndex--;
+                typingSpeed = 50;
+            } else {
+                setTypingText(currentString.substring(0, charIndex + 1));
+                charIndex++;
+                typingSpeed = 100;
+            }
+
+            if (!isDeleting && charIndex === currentString.length) {
+                // Finished typing one line
+                isDeleting = true;
+                typingSpeed = 2000; // Pause before deleting
+                setShowInsights(prev => (prev + 1) % 3); // Show next insight
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                currentIndex = (currentIndex + 1) % TYPING_SEQUENCE.length;
+                typingSpeed = 500;
+                if (currentIndex === 0) setShowInsights(0); // Reset loop
+            }
+
+            setTimeout(type, typingSpeed);
+        };
+
+        const timer = setTimeout(type, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
-    const handleSendMessage = () => {
-        if (!inputValue.trim()) return;
-
-        const userText = inputValue;
-        setMessages(prev => [...prev, { id: Date.now(), text: userText, isUser: true }]);
-        setInputValue('');
-        dispatch(setProblemDescription(userText));
-
-        setIsTyping(true);
-
-        // Simulate AI Analysis
-        setTimeout(() => {
-            const result = analyzeInput(userText);
-            dispatch(setClassification(result));
-
-            const similarReviews = reviews.filter(r => {
-                const cat = categories[result.category];
-                return cat && r.caseType.includes(cat.description?.split(',')[0] || '');
-            }).slice(0, 2);
-            dispatch(setSimilarCases(similarReviews));
-
-            setIsTyping(false);
-
-            setMessages(prev => [...prev, {
-                id: Date.now() + 1,
-                text: result.comfortMessage,
-                isUser: false
-            }]);
-
-            setTimeout(() => {
-                setDiagnosis({
-                    result,
-                    similarReviews
-                });
-            }, 500);
-
-        }, 1500);
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
-
-    const categoryInfo = diagnosis ? categories[diagnosis.result.category] : null;
-
     return (
-        // Root padding-top-16 (64px) creates space for Fixed Global Header
-        // bg-[#f2f4f6] matches the theme
-        <div className="flex flex-col h-screen bg-[#f2f4f6] pt-16">
+        <div className="min-h-screen bg-background-base pt-16 overflow-x-hidden font-sans">
+            {/* Hero Section Container */}
+            <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-[calc(100vh-64px)] flex items-center">
 
-            {/* 1. Page Header */}
-            {/* 
-                - flex-none: Won't shrink
-                - bg-[#f2f4f6]: Matches page bg, but we can make it sticky if we wanted.
-                  User asked to "Force fixed location" for Nav bar (Global).
-                  And Body starts below it.
-                  This "What can I help?" header is part of the body flow but visually acts as a title.
-                  If it scrolls UP and disappears behind Global Header, that's fine.
-                  If User wants THIS to be fixed too, they would say "Title bar fixed".
-                  User said "Global Nav Bar fixed, body starts below".
-                  So this title scrolls with body.
-                  Wait, previous user complaint "Header covers first bubble".
-                  If this Title Bar is fixed, it covers bubbles.
-                  I will make this Title Bar SCROLLABLE (part of body) so it goes away.
-                  This ensures maximum view space.
-                  OR if user wants it fixed, I need to stick it.
-                  User said "상단 네비게이션 바(Global)를 강제로 고정".
-                  So I'll assume only Global is fixed.
-            */}
-            <div className="flex-none pt-6 pb-6 px-6 text-center border-b border-gray-200 shadow-sm relative z-20 bg-[#f2f4f6]">
-                <p className="text-sm text-gray-500 font-medium mb-1">AI 법률/상담 진단</p>
-                <h1 className="text-xl font-bold text-gray-900">무엇을 도와드릴까요?</h1>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full items-center">
 
-                <div className="absolute top-6 right-6">
-                    <button
-                        onClick={() => navigate('/experts')}
-                        className="text-xs text-gray-400 font-medium hover:text-gray-600 underline"
+                    {/* LEFT COLUMN: Copy & CTA */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="space-y-8 max-w-2xl"
                     >
-                        건너뛰기
-                    </button>
-                </div>
-            </div>
+                        {/* Eyebrow */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100"
+                        >
+                            <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
+                            <span className="text-sm font-semibold text-primary-700 tracking-wide">AI 법률 진단 및 전문가 매칭 플랫폼</span>
+                        </motion.div>
 
-            {/* 2. Chat Area */}
-            <div className="flex-1 overflow-y-auto px-4 scroll-smooth z-0">
-                <div className="max-w-xl mx-auto pt-6 pb-32">
-                    {messages.map((msg, index) => {
-                        // Dynamic Spacing Logic
-                        // Default large gap (1.5cm ~ 60px)
-                        let marginBottom = 'mb-[60px]';
+                        {/* Headline */}
+                        <motion.h1
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.2] tracking-tight"
+                        >
+                            막막한 법적 문제,<br />
+                            <span className="text-primary-600">당신의 이야기</span>를<br />
+                            들려주세요.
+                        </motion.h1>
 
-                        // Check next message
-                        const nextMsg = messages[index + 1];
-                        if (nextMsg && nextMsg.isUser === msg.isUser) {
-                            // If next message is from SAME sender, use small gap (0.3cm ~ 12px)
-                            marginBottom = 'mb-3';
-                        }
+                        {/* Subhead */}
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="text-xl text-gray-600 leading-relaxed font-regular"
+                        >
+                            탁월(Takweol) AI가 복잡한 문제를 분석하고,<br className="hidden lg:block" />
+                            데이터로 검증된 <span className="font-semibold text-gray-900">최적의 전문가</span>를 안전하게 연결해 드립니다.
+                        </motion.p>
 
-                        return (
-                            <ChatBubble
-                                key={msg.id}
-                                message={msg.text}
-                                isUser={msg.isUser}
-                                className={marginBottom}
-                            />
-                        );
-                    })}
+                        {/* CTA Group */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                            className="flex flex-col sm:flex-row gap-4 pt-4"
+                        >
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={() => navigate('/wizard')}
+                                className="h-14 px-8 text-lg rounded-2xl shadow-float hover:translate-y-[-2px] transition-transform flex items-center gap-2"
+                            >
+                                무료 진단 시작하기
+                                <ArrowRight className="w-5 h-5" />
+                            </Button>
 
-                    {isTyping && <TypingIndicator />}
+                            <div className="flex items-center gap-2 px-6 py-4 rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-600">
+                                <Lock className="w-5 h-5 text-accent-amber" fill="currentColor" fillOpacity={0.2} />
+                                <span className="text-sm font-medium">모든 대화는 익명으로 암호화됩니다</span>
+                            </div>
+                        </motion.div>
 
-                    {/* AI Diagnosis Result Card */}
-                    {diagnosis && categoryInfo && (
-                        <div className="animate-slide-up">
-                            <Card className="border-0 shadow-soft overflow-hidden p-0">
-                                <div className="p-6 bg-white">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="text-3xl p-2 bg-gray-50 rounded-2xl">{categoryInfo.icon}</div>
-                                            <div>
-                                                <div className="text-sm text-gray-500 font-medium">분석 결과</div>
-                                                <h3 className={`text-lg font-bold text-${categoryInfo.color}-500`}>
-                                                    {categoryInfo.name} 관련 문제
-                                                </h3>
-                                            </div>
-                                        </div>
-                                        <div className="px-3 py-1 bg-gray-50 rounded-full text-xs font-bold text-gray-600">
-                                            {diagnosis.result.confidence}% 일치
-                                        </div>
+                        {/* Social Proof */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 1.0 }}
+                            className="flex items-center gap-4 pt-4"
+                        >
+                            <div className="flex -space-x-3">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden shadow-sm">
+                                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="user" className="w-full h-full object-cover" />
+                                    </div>
+                                ))}
+                                <div className="w-10 h-10 rounded-full border-2 border-white bg-primary-50 flex items-center justify-center text-xs font-bold text-primary-600 shadow-sm">
+                                    +12k
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-1 text-accent-amber">
+                                    {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+                                </div>
+                                <p className="text-sm text-gray-500 font-medium">
+                                    <span className="font-bold text-gray-900">12,000건</span>의 상담이 안전하게 해결되었습니다.
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+
+
+                    {/* RIGHT COLUMN: Interactive Mockup (Insight Mirror) */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1.0, delay: 0.2, type: "spring", stiffness: 50 }}
+                        className="relative hidden lg:block"
+                    >
+                        {/* Main Mockup Frame */}
+                        <div className="relative z-10 bg-white rounded-[32px] shadow-float border border-gray-100 overflow-hidden aspect-[16/10] bg-gradient-to-br from-white to-gray-50">
+
+                            {/* Header Bar Mockup */}
+                            <div className="h-14 border-b border-gray-100 flex items-center px-6 justify-between bg-white/80 backdrop-blur-md">
+                                <div className="flex gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full">
+                                    <Lock className="w-3 h-3 text-gray-400" />
+                                    <span className="text-[10px] text-gray-500 font-medium">Takweol Secure Shell</span>
+                                </div>
+                            </div>
+
+                            {/* Split Content */}
+                            <div className="flex h-full">
+
+                                {/* Left: Editor Input */}
+                                <div className="w-[55%] p-8 border-r border-gray-100">
+                                    <h3 className="text-sm text-gray-400 font-bold mb-4">PROBLEM DESCRIPTION</h3>
+                                    <div className="font-medium text-xl text-gray-800 leading-relaxed min-h-[120px]">
+                                        "{typingText}<span className="animate-pulse text-primary-500">|</span>"
+                                    </div>
+                                </div>
+
+                                {/* Right: Insight Mirror */}
+                                <div className="w-[45%] bg-primary-50/30 p-6 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h3 className="text-sm text-primary-600 font-bold flex items-center gap-2">
+                                            <Shield className="w-4 h-4" />
+                                            AI Detecting...
+                                        </h3>
                                     </div>
 
-                                    <p className="text-gray-700 leading-relaxed text-[15px] mb-4">
-                                        <b>"{diagnosis.result.summary}"</b><br />
-                                        전문적인 해결책이 필요한 상황입니다.
-                                    </p>
+                                    <AnimatePresence mode='popLayout'>
+                                        {showInsights >= 1 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                className="bg-white p-4 rounded-2xl shadow-card border-l-4 border-red-500"
+                                            >
+                                                <div className="text-xs text-red-500 font-bold mb-1">⚠️ 위험 감지</div>
+                                                <div className="text-sm font-bold text-gray-900">직장 내 괴롭힘/폭언</div>
+                                            </motion.div>
+                                        )}
 
-                                    {/* Similar Case Teaser */}
-                                    {diagnosis.similarReviews.length > 0 && (
-                                        <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-50">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                                <p className="text-xs text-blue-600 font-bold">유사 해결 사례</p>
-                                            </div>
-                                            <div className="text-sm text-gray-600">
-                                                "{diagnosis.similarReviews[0].comment.slice(0, 50)}..."
-                                            </div>
-                                        </div>
-                                    )}
+                                        {showInsights >= 2 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                className="bg-white p-4 rounded-2xl shadow-card border-l-4 border-blue-500"
+                                            >
+                                                <div className="text-xs text-blue-500 font-bold mb-1">⚖️ 관련 법령</div>
+                                                <div className="text-sm font-bold text-gray-900">근로기준법 제76조의3</div>
+                                                <div className="text-xs text-gray-500 mt-1">사용자는 직장 내 괴롭힘 발생 시...</div>
+                                            </motion.div>
+                                        )}
+
+                                        {showInsights >= 3 || typingText.length > 10 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                className="bg-white p-4 rounded-2xl shadow-card border-l-4 border-green-500 bg-green-50/50"
+                                            >
+                                                <div className="text-xs text-green-600 font-bold mb-1">✅ 해결 가능성 분석</div>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-2xl font-bold text-gray-900">1,240</span>
+                                                    <span className="text-sm text-gray-500">건의 유사 사례</span>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
-                                {/* Card Footer Action */}
-                                <div className="p-4 bg-gray-50 border-t border-gray-100">
-                                    <Button
-                                        variant="primary"
-                                        className="w-full py-3.5 text-base shadow-toss"
-                                        onClick={() => navigate('/experts')}
-                                    >
-                                        전문가 3인 추천받기
-                                    </Button>
-                                </div>
-                            </Card>
-                            <p className="text-xs text-center text-gray-400 mt-4">
-                                AI 진단은 참고용이며 법적 효력이 없습니다.
-                            </p>
+                            </div>
+
                         </div>
-                    )}
-                    <div ref={messagesEndRef} />
+
+                        {/* Decorative Elements around Mockup */}
+                        <div className="absolute -z-10 top-[-20px] right-[-20px] w-64 h-64 bg-primary-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+                        <div className="absolute -z-10 bottom-[-40px] left-[-40px] w-72 h-72 bg-accent-100 rounded-full blur-3xl opacity-40"></div>
+                    </motion.div>
+
                 </div>
             </div>
-
-            {/* 3. Input Area */}
-            {!diagnosis && (
-                <div className="flex-none bg-white border-t border-gray-100 p-3 pb-6 safe-area-bottom z-30 relative">
-                    <div className="max-w-xl mx-auto flex gap-2 items-end">
-                        <button className="p-3 rounded-full text-gray-400 hover:text-primary-500 hover:bg-gray-50 transition-colors">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                        </button>
-                        <div className="flex-1 bg-gray-50 rounded-[24px] px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500/20 transition-all">
-                            <textarea
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="메시지 입력..."
-                                className="w-full bg-transparent text-gray-900 placeholder-gray-400 outline-none resize-none h-[24px] py-1 text-base"
-                                rows={1}
-                                style={{ height: Math.min(inputValue.split('\n').length * 24 + 10, 100) + 'px' }}
-                            />
-                        </div>
-                        <button
-                            onClick={handleSendMessage}
-                            disabled={!inputValue.trim() || isTyping}
-                            className="p-3 rounded-full bg-primary-500 text-white hover:bg-primary-600 disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
-                        >
-                            <svg className="w-5 h-5 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

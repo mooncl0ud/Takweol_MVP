@@ -291,7 +291,7 @@ export default function WizardPage() {
     // ============ MOBILE LAYOUT ============
     if (isMobile) {
         return (
-            <div className="flex flex-col h-screen bg-[#f2f4f6] pt-16">
+            <div className="flex flex-col h-screen bg-[#f2f4f6] pt-20">
                 {/* Page Header */}
                 <div className="flex-none pt-4 pb-4 px-4 text-center border-b border-gray-200 bg-white/80 backdrop-blur-md">
                     <p className="text-xs text-gray-400 font-medium mb-0.5">AI 법률/상담 진단</p>
@@ -394,7 +394,7 @@ export default function WizardPage() {
 
     // ============ DESKTOP LAYOUT (6:4 Split) ============
     return (
-        <div className="flex h-screen bg-[#f2f4f6] pt-16">
+        <div className="flex h-screen bg-[#f2f4f6] pt-20">
             {/* Left Panel (60%) - Essay Editor */}
             <div className="w-[60%] flex flex-col border-r border-gray-200 bg-white">
                 {/* Header */}
