@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UserCheck, Star, Briefcase, ArrowRight } from 'lucide-react';
+import { UserCheck, Star, Briefcase, ArrowRight, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export function ExpertCard({ name, cases, rating, reason, tags, delay, onBook }) {
@@ -21,8 +21,8 @@ export function ExpertCard({ name, cases, rating, reason, tags, delay, onBook })
                 <div className="flex gap-5">
                     {/* Profile Image Area */}
                     <div className="relative shrink-0">
-                        <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm">
-                            <img src={`https://i.pravatar.cc/150?u=${name}`} alt={name} className="w-full h-full object-cover" />
+                        <div className="w-16 h-16 rounded-full bg-gray-300 border-2 border-white shadow-sm flex items-center justify-center">
+                            <User className="w-8 h-8 text-gray-500" />
                         </div>
                         {/* Similar Cases Badge (High Priority) */}
                         <div className="absolute -bottom-3 -right-2 bg-white border border-secondary text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">

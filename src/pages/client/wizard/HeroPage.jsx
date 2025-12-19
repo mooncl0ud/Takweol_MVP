@@ -79,9 +79,7 @@ export default function HeroPage() {
                             <div className="pt-4 border-t border-gray-100 flex items-center gap-6">
                                 <div className="flex -space-x-3">
                                     {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                                            <img src={`https://i.pravatar.cc/100?img=${10 + i}`} alt="user" className="w-full h-full object-cover" />
-                                        </div>
+                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-300" />
                                     ))}
                                     <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-xs font-medium text-gray-600">
                                         +1.2k

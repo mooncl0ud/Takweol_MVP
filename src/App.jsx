@@ -9,6 +9,8 @@ import { LayoutClient } from './components/layout/LayoutClient';
 import { LayoutExpert } from './components/layout/LayoutExpert';
 import LeadInboxPage from './pages/expert/leads/LeadInboxPage';
 import ProposalBuilderPage from './pages/expert/proposal/ProposalBuilderPage';
+import MyCasesPage from './pages/expert/cases/MyCasesPage';
+import DashboardPage from './pages/expert/dashboard/DashboardPage';
 
 function App() {
   return (
@@ -33,8 +35,8 @@ function App() {
           <Route index element={<Navigate to="/expert/inbox" replace />} />
           <Route path="inbox" element={<LeadInboxPage />} />
           <Route path="drafts" element={<ProposalBuilderPage />} />
-          <Route path="cases" element={<div className="p-8">My Cases (Coming Soon)</div>} />
-          <Route path="dashboard" element={<div className="p-8">Dashboard (Coming Soon)</div>} />
+          <Route path="cases" element={<MyCasesPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
