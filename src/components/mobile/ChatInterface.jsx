@@ -36,6 +36,7 @@ export function ChatInterface() {
                 id: Date.now() + 1,
                 type: 'ai',
                 text: "거의 다 왔어요, 조금만 더 구체적으로 말씀해 주시겠어요?\n(예: 사건이 일어난 시점, 상대방의 반응 등)",
+                timestamp: new Date(),
                 isProgress: true // Special styling for progress prompts
             };
             setMessages(prev => [...prev, aiMsg]);
@@ -62,8 +63,8 @@ export function ChatInterface() {
                     >
                         <div
                             className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-line shadow-sm ${msg.type === 'user'
-                                    ? 'bg-primary text-white rounded-br-none'
-                                    : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
+                                ? 'bg-primary text-white rounded-br-none'
+                                : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
                                 }`}
                         >
                             {msg.text}
