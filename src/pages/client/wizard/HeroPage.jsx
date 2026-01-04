@@ -44,9 +44,9 @@ export default function HeroPage() {
                                 </motion.div>
 
                                 <h1 className="text-4xl lg:text-5xl font-bold leading-[1.15] text-gray-900 tracking-tight">
-                                    막막한 법적 문제,<br />
-                                    <span className="text-primary relative inline-block">
-                                        당신의 이야기
+                                    <span className="text-primary">세무, 법률</span>부터 <span className="text-primary">비즈니스</span>까지.<br />
+                                    <span className="relative inline-block">
+                                        당신의 막막한 문제
                                         <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/20 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
                                             <path d="M0 5 Q 50 10 100 5 L 100 10 L 0 10 Z" fill="currentColor" />
                                         </svg>

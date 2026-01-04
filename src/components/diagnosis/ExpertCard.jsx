@@ -2,8 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { UserCheck, Star, Briefcase, ArrowRight, User } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useNavigate } from 'react-router-dom';
 
-export function ExpertCard({ name, cases, rating, reason, tags, delay, onBook }) {
+export function ExpertCard({ name, cases, rating, reason, tags, delay, expertId = '1' }) {
+    const navigate = useNavigate();
+
+    const handleViewProfile = () => {
+        navigate(`/booking/${expertId}`);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -57,13 +64,13 @@ export function ExpertCard({ name, cases, rating, reason, tags, delay, onBook })
                 {/* Action */}
                 <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
                     <div className="text-xs text-gray-400">
-                        <span className="font-semibold text-gray-900">15분</span> 초두 상담 가능
+                        <span className="font-semibold text-primary">₩25,000</span> 초두 상담
                     </div>
                     <Button
                         size="sm"
                         variant="ghost"
                         className="text-primary hover:bg-blue-50 p-0 h-auto hover:underline font-semibold"
-                        onClick={onBook}
+                        onClick={handleViewProfile}
                     >
                         프로필 보기 <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>

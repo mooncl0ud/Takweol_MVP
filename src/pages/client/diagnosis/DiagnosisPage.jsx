@@ -112,8 +112,8 @@ export default function DiagnosisPage() {
                         <ExpertCard
                             key={idx}
                             {...expert}
+                            expertId={String(idx + 1)}
                             delay={idx * 0.15}
-                            onBook={() => navigate('/booking')}
                         />
                     ))}
                 </div>

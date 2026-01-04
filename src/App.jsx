@@ -4,6 +4,8 @@ import HeroPage from './pages/client/wizard/HeroPage';
 import InteractiveAnalysisPage from './pages/client/wizard/InteractiveAnalysisPage';
 import DiagnosisPage from './pages/client/diagnosis/DiagnosisPage';
 import BookingPage from './pages/client/booking/BookingPage';
+import ExpertProfilePage from './pages/client/booking/ExpertProfilePage';
+import BookingConfirmationPage from './pages/client/booking/BookingConfirmationPage';
 import ProposalPage from './pages/client/proposal/ProposalPage';
 import { LayoutClient } from './components/layout/LayoutClient';
 import { LayoutExpert } from './components/layout/LayoutExpert';
@@ -26,9 +28,15 @@ function App() {
             <Route path="/wizard/problem" element={<HeroPage />} />
             <Route path="/wizard/analysis" element={<InteractiveAnalysisPage />} />
 
-            {/* Future Routes */}
+            {/* Diagnosis & Expert Matching */}
             <Route path="/diagnosis" element={<DiagnosisPage />} />
+
+            {/* Booking Flow */}
             <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking/:expertId" element={<ExpertProfilePage />} />
+            <Route path="/booking/confirm" element={<BookingConfirmationPage />} />
+
+            {/* Proposal (shown after consultation, not immediately after booking) */}
             <Route path="/proposal" element={<ProposalPage />} />
           </Route>
 
@@ -47,4 +55,3 @@ function App() {
 }
 
 export default App;
-

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ShieldCheck, Zap, AlertCircle } from 'lucide-react';
 
-const TYPING_TEXT = "팀장님이 회식 자리에서 저에게 심한 욕설을...";
+const TYPING_TEXT = "스타트업 투자 유치 중인데, 지분 구조랑 세금 문제가...";
 const INSIGHT_DATA = {
-    category: "직장 내 괴롭힘 감지",
-    law: "근로기준법 제76조 2항",
-    cases: 1240
+    category: "스타트업 투자 자문",
+    law: "법인세법 / 상법 관련",
+    cases: 2840
 };
 
 export function InsightMirror() {
@@ -85,7 +85,7 @@ export function InsightMirror() {
                     </span>
 
                     {!isTyping && displayText.length === 0 && (
-                        <span className="text-gray-400 absolute top-8 left-8">어떤 법적 고민이 있으신가요?</span>
+                        <span className="text-gray-400 absolute top-8 left-8">어떤 고민이 있으신가요?</span>
                     )}
 
                     {/* Insight Popover */}

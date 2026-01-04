@@ -1,19 +1,49 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, Image as ImageIcon, ArrowRight, Loader2, Shield, TrendingUp, Users, ChevronUp, X } from 'lucide-react';
+import { Send, Mic, Image as ImageIcon, ArrowRight, Shield, TrendingUp, Users, ChevronUp, X, Building2, Briefcase, Home, Bot } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { performFullAnalysis } from '../../utils/analysisAlgorithm';
 import { useAnalysis } from '../../contexts/AnalysisContext';
 
-const INITIAL_MESSAGE = "안녕하세요, 탁월 AI입니다.\n오늘 어떤 법적인 고민 때문에 찾아오셨나요?\n\n편하게 말씀해 주시면, 제가 상황을 분석하고\n최적의 전문가를 찾아드릴게요.";
+// Phase-based conversation flow
+const CHAT_PHASES = {
+    PERSONA_SELECT: 'persona_select',
+    GREETING: 'greeting',
+    LISTENING: 'listening',
+    ANALYSIS: 'analysis',
+    MATCHING: 'matching'
+};
 
-const AI_FOLLOW_UPS = [
-    "네, 이해했습니다. 조금 더 구체적으로 여쭤볼게요.\n혹시 해당 상황이 언제부터 시작되었나요?",
-    "알겠습니다. 그렇다면 관련 증거(메시지, 녹음 등)가 있으신가요?",
-    "충분히 파악이 되었습니다.\n마지막으로, 원하시는 해결 방향이 있으신가요?\n(예: 합의, 소송, 진정 등)",
-    "감사합니다. 모든 정보가 수집되었습니다.\n지금부터 최적의 전문가를 매칭해 드리겠습니다."
+const PERSONA_OPTIONS = [
+    { id: 'startup', label: '스타트업/기업 대표 혹은 업무 담당자', icon: Building2 },
+    { id: 'employee', label: '직장인/실무자', icon: Briefcase },
+    { id: 'individual', label: '개인/기타', icon: Home }
 ];
+
+const PERSONA_GREETINGS = {
+    startup: '대표님',
+    employee: '실무자님',
+    individual: '고객님'
+};
+
+const INITIAL_MESSAGE = "안녕하세요, 탁월 AI입니다.\n상위 1% 전문가를 연결해 드리기 전, 고객님에 대해 조금만 알려주세요.";
+
+// Empathetic response templates
+const getEmpatheticResponse = (phase, context) => {
+    switch (phase) {
+        case 'first_response':
+            return `아, 그런 고민이 있으시군요. 많이 답답하셨겠습니다.\n\n조금 더 구체적으로 여쭤볼게요.\n혹시 해당 상황이 언제부터 시작되었나요?`;
+        case 'second_response':
+            return `네, 상황을 잘 이해했습니다. 충분히 걱정되실 만한 상황이시네요.\n\n그렇다면 관련 증거(메시지, 녹음, 계약서 등)가 있으신가요?`;
+        case 'third_response':
+            return `감사합니다. 상황을 완벽하게 파악했습니다.\n\n마지막으로, 원하시는 해결 방향이 있으신가요?\n(예: 합의, 소송, 자문 등)`;
+        case 'matching':
+            return `답변 감사합니다. 상황을 완벽하게 파악했습니다.\n\n${context?.greeting || '고객'}님의 케이스에 적합한 상위 1% 전문가 3분을 찾았습니다.\n지금 바로 프로필을 확인해 보시겠어요?`;
+        default:
+            return "네, 이해했습니다. 조금 더 자세히 알려주세요.";
+    }
+};
 
 // Typing Indicator Component
 function TypingIndicator() {
@@ -24,25 +54,59 @@ function TypingIndicator() {
             exit={{ opacity: 0, y: -10 }}
             className="flex justify-start"
         >
-            <div className="bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
-                <div className="flex gap-1.5 items-center">
-                    <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                    />
-                    <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                    />
-                    <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                    />
+            <div className="flex items-start gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Bot className="w-4 h-4 text-primary" />
+                </div>
+                <div className="bg-white text-gray-800 border border-gray-100 rounded-3xl rounded-bl-md px-4 py-3 shadow-sm">
+                    <div className="flex gap-1.5 items-center">
+                        <motion.span
+                            animate={{ opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+                            className="w-2 h-2 bg-gray-400 rounded-full"
+                        />
+                        <motion.span
+                            animate={{ opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
+                            className="w-2 h-2 bg-gray-400 rounded-full"
+                        />
+                        <motion.span
+                            animate={{ opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+                            className="w-2 h-2 bg-gray-400 rounded-full"
+                        />
+                    </div>
                 </div>
             </div>
+        </motion.div>
+    );
+}
+
+// Persona Selection Component
+function PersonaSelector({ onSelect }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-2 mt-2"
+        >
+            {PERSONA_OPTIONS.map((option) => {
+                const IconComponent = option.icon;
+                return (
+                    <motion.button
+                        key={option.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onSelect(option)}
+                        className="w-full flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all text-left"
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <IconComponent className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">{option.label}</span>
+                    </motion.button>
+                );
+            })}
         </motion.div>
     );
 }
@@ -94,7 +158,7 @@ function AnalysisBottomSheet({ analysis, onClose, onNavigate }) {
                     </p>
                 </div>
 
-                {/* Stats Grid */}
+                {/* Stats Grid - Simplified, no estimated cost */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
                     <div className="bg-gray-50 rounded-xl p-3 text-center">
                         <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
@@ -113,13 +177,14 @@ function AnalysisBottomSheet({ analysis, onClose, onNavigate }) {
                     </div>
                 </div>
 
-                {/* Estimated Cost */}
+                {/* Initial Consultation Fee Only */}
                 <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 mb-6">
-                    <p className="text-sm text-gray-600">예상 비용</p>
+                    <p className="text-sm text-gray-600">초두 상담 비용</p>
                     <p className="text-xl font-bold text-gray-900">
-                        {analysis.estimatedCost.min}~{analysis.estimatedCost.max}
-                        <span className="text-sm font-normal text-gray-500 ml-1">만원</span>
+                        25,000
+                        <span className="text-sm font-normal text-gray-500 ml-1">원</span>
                     </p>
+                    <p className="text-xs text-gray-500 mt-1">15분 전문가 1:1 상담</p>
                 </div>
 
                 {/* Actions */}
@@ -129,7 +194,7 @@ function AnalysisBottomSheet({ analysis, onClose, onNavigate }) {
                         className="w-full shadow-lg shadow-primary/20"
                         onClick={onNavigate}
                     >
-                        전문가 매칭 결과 보기
+                        전문가 프로필 보기
                     </Button>
                     <Button
                         size="lg"
@@ -149,13 +214,16 @@ export function ChatInterface() {
     const navigate = useNavigate();
     const { updateAnalysis } = useAnalysis();
     const [messages, setMessages] = useState([
-        { id: 1, type: 'ai', text: INITIAL_MESSAGE, timestamp: new Date() }
+        { id: 1, type: 'ai', text: INITIAL_MESSAGE, timestamp: new Date(), showPersonaSelector: true }
     ]);
     const [inputValue, setInputValue] = useState("");
     const [responseIndex, setResponseIndex] = useState(0);
     const [isTyping, setIsTyping] = useState(false);
     const [analysis, setAnalysis] = useState(null);
     const [showBottomSheet, setShowBottomSheet] = useState(false);
+    const [chatPhase, setChatPhase] = useState(CHAT_PHASES.PERSONA_SELECT);
+    const [selectedPersona, setSelectedPersona] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
@@ -166,6 +234,45 @@ export function ChatInterface() {
     useEffect(() => {
         scrollToBottom();
     }, [messages, isTyping]);
+
+    // Handle persona selection
+    const handlePersonaSelect = (persona) => {
+        if (isProcessing) return;
+        setIsProcessing(true);
+        setSelectedPersona(persona);
+
+        // Remove persona selector from initial message
+        setMessages(prev => prev.map(msg =>
+            msg.showPersonaSelector ? { ...msg, showPersonaSelector: false } : msg
+        ));
+
+        // Add user's persona selection as message
+        const userMsg = {
+            id: Date.now(),
+            type: 'user',
+            text: persona.label,
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, userMsg]);
+
+        // Show typing indicator
+        setIsTyping(true);
+
+        // Send personalized greeting
+        setTimeout(() => {
+            setIsTyping(false);
+            const greeting = PERSONA_GREETINGS[persona.id];
+            const greetingMsg = {
+                id: Date.now() + 1,
+                type: 'ai',
+                text: `반갑습니다, ${greeting}.\n오늘 해결하고 싶은 가장 큰 고민은 무엇인가요?\n\n두서없이 말씀하셔도 제가 찰떡같이 알아듣고 정리해 드릴게요.\n편하게 적어주세요.`,
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, greetingMsg]);
+            setChatPhase(CHAT_PHASES.LISTENING);
+            setIsProcessing(false);
+        }, 1000);
+    };
 
     // Perform analysis whenever messages change
     const performAnalysis = useCallback((msgs) => {
@@ -179,13 +286,14 @@ export function ChatInterface() {
         }
 
         // Show bottom sheet when analysis is complete (100%)
-        if (result && result.analysisProgress >= 100) {
+        if (result && result.analysisProgress >= 100 && !showBottomSheet) {
             setTimeout(() => setShowBottomSheet(true), 500);
         }
-    }, [updateAnalysis]);
+    }, [updateAnalysis, showBottomSheet]);
 
     const handleSend = () => {
-        if (!inputValue.trim()) return;
+        if (!inputValue.trim() || isProcessing) return;
+        setIsProcessing(true);
 
         const userMessage = inputValue.trim();
 
@@ -201,17 +309,33 @@ export function ChatInterface() {
         // Show typing indicator
         setIsTyping(true);
 
-        // Simulate AI Response
+        // Determine response based on conversation phase
+        const currentIndex = responseIndex;
+        let responsePhase;
+        if (currentIndex === 0) responsePhase = 'first_response';
+        else if (currentIndex === 1) responsePhase = 'second_response';
+        else if (currentIndex === 2) responsePhase = 'third_response';
+        else responsePhase = 'matching';
+
+        // Simulate AI Response with empathetic message
         setTimeout(() => {
             setIsTyping(false);
+            const greeting = selectedPersona ? PERSONA_GREETINGS[selectedPersona.id] : '고객님';
+
             const aiMsg = {
                 id: Date.now() + 1,
                 type: 'ai',
-                text: AI_FOLLOW_UPS[responseIndex % AI_FOLLOW_UPS.length],
-                timestamp: new Date()
+                text: getEmpatheticResponse(responsePhase, { greeting }),
+                timestamp: new Date(),
+                showExpertButton: responsePhase === 'matching'
             };
             setMessages(prev => [...prev, aiMsg]);
             setResponseIndex(prev => prev + 1);
+
+            if (responsePhase === 'matching') {
+                setChatPhase(CHAT_PHASES.MATCHING);
+            }
+            setIsProcessing(false);
         }, 1200);
     };
 
@@ -300,17 +424,48 @@ export function ChatInterface() {
                             layout
                             className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div
-                                className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-line shadow-sm ${msg.type === 'user'
-                                    ? 'bg-primary text-white rounded-br-none'
-                                    : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
-                                    }`}
-                            >
-                                {msg.text}
-                                <div className={`text-[10px] mt-1 text-right ${msg.type === 'user' ? 'text-blue-100' : 'text-gray-400'}`}>
-                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {msg.type === 'ai' && (
+                                <div className="flex items-start gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+                                        <Bot className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <div className="flex flex-col gap-2 max-w-[85%]">
+                                        <div className="bg-white text-gray-800 border border-gray-100 rounded-3xl rounded-bl-md px-4 py-3 shadow-sm">
+                                            <div className="text-[15px] leading-relaxed whitespace-pre-line">
+                                                {msg.text}
+                                            </div>
+                                            <div className="text-[10px] mt-1 text-right text-gray-400">
+                                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+                                        {msg.showPersonaSelector && (
+                                            <PersonaSelector onSelect={handlePersonaSelect} />
+                                        )}
+                                        {msg.showExpertButton && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                            >
+                                                <Button
+                                                    size="sm"
+                                                    className="w-full mt-2"
+                                                    onClick={() => navigate('/diagnosis')}
+                                                >
+                                                    🔍 전문가 리스트 보기
+                                                </Button>
+                                            </motion.div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+                            {msg.type === 'user' && (
+                                <div className="max-w-[85%] rounded-3xl rounded-br-md px-4 py-3 text-[15px] leading-relaxed whitespace-pre-line shadow-sm bg-primary text-white">
+                                    {msg.text}
+                                    <div className="text-[10px] mt-1 text-right text-blue-100">
+                                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
                     ))}
                 </AnimatePresence>
@@ -343,7 +498,7 @@ export function ChatInterface() {
                     )}
                 </AnimatePresence>
 
-                <div className="flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-[20px] p-2 pr-2">
+                <div className="flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-[24px] p-2 pr-2">
                     <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full">
                         <ImageIcon className="w-5 h-5" />
                     </button>
@@ -353,8 +508,9 @@ export function ChatInterface() {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="상황을 입력해주세요..."
-                        className="flex-1 bg-transparent border-none resize-none focus:ring-0 focus:outline-none text-sm max-h-24 py-2.5 px-0 placeholder:text-gray-400"
+                        placeholder={chatPhase === CHAT_PHASES.PERSONA_SELECT ? "위에서 선택해주세요" : "상황을 입력해주세요..."}
+                        disabled={chatPhase === CHAT_PHASES.PERSONA_SELECT}
+                        className="flex-1 bg-transparent border-none resize-none focus:ring-0 focus:outline-none text-sm max-h-24 py-2.5 px-0 placeholder:text-gray-400 disabled:opacity-50"
                         rows={1}
                     />
 
